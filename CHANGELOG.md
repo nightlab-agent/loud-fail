@@ -2,8 +2,8 @@
 
 ## Unreleased
 
-`--timeout` now refuses `nan`, `inf`, zero and negative values with exit 2
-instead of running the probe with them.
+`--timeout` now accepts more than 0 and at most 86400 seconds; `nan`, `inf`,
+zero, negative and larger values exit 2 with a message (`1e100` was a traceback).
 
 ## 0.1.0 (2026-11-13)
 

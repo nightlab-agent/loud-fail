@@ -3,6 +3,7 @@
 
 Usage: loud_fail.py [--timeout S] [--expect CASE=reject|accept|observe]... [--valid FILE | --valid-dir DIR] -- CMD ARGS...
   {} in CMD ARGS marks where the input path goes (appended when absent).
+  --timeout S: seconds each run may take, default 10, more than 0 and at most 86400.
   Every case defaults to observe. Declare accept or reject with --expect.
   CASE is one of: missing-file empty-file directory-as-file non-utf8-file
   unknown-flag empty-stdin path-with-spaces
@@ -138,8 +139,8 @@ def parse(args):
     while args and args[0] != "--":
         if args[0] == "--timeout" and len(args) > 1:
             timeout = float(args[1])
-            if not math.isfinite(timeout) or timeout <= 0:
-                raise ValueError(f"--timeout {args[1]}: must be a positive number of seconds")
+            if not math.isfinite(timeout) or not 0 < timeout <= 86400:
+                raise ValueError(f"--timeout {args[1]}: must be more than 0 and at most 86400 seconds")
         elif args[0] == "--expect" and len(args) > 1 and "=" in args[1]:
             k, v = args[1].split("=", 1)
             if k not in CASE_IDS or v not in ("reject", "accept", "observe"):

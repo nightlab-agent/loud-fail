@@ -43,6 +43,8 @@ flag it does not know.
     python3 loud_fail.py [--timeout S] [--expect CASE=reject|accept|observe]... [--valid FILE | --valid-dir DIR] -- CMD ARGS...
 
 - `{}` in `CMD ARGS` is where the input path goes.
+- `--timeout S` is how long each run may take: default 10 seconds, more than 0 and at
+  most 86400.
 - `CASE` is one of `missing-file`, `empty-file`, `directory-as-file`, `non-utf8-file`,
   `unknown-flag`, `empty-stdin`, `path-with-spaces`.
 - Every input defaults to `observe`: loud-fail does not judge whether the exit code was the
