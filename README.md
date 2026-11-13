@@ -1,0 +1,79 @@
+# loud-fail
+
+Run your command-line tool on the inputs users get wrong, and see which ones make it
+crash, stay silent, or say yes when it should say no.
+
+loud-fail makes seven bad or awkward inputs in a temporary folder (a missing file, an empty
+file, a folder where a file was expected, a file that is not UTF-8, an unknown flag, empty
+stdin, a path with spaces), runs your command once on each, and prints one row per input.
+You say which inputs your tool should refuse and which it should accept; loud-fail checks
+the exit code and whether the tool said why.
+
+Python 3.10 or newer (tested on 3.12), standard library only. Nothing to install: clone the repo, or copy
+`loud_fail.py` and `loud_fail_core.py` into one folder, and run the first.
+
+## Example
+
+`examples/quiet_reader.py` counts the words in a file and has faults on purpose:
+
+```sh
+python3 loud_fail.py --valid examples/valid.txt \
+  --expect missing-file=reject --expect directory-as-file=reject \
+  --expect unknown-flag=reject --expect path-with-spaces=accept \
+  -- python3 examples/quiet_reader.py '{}'
+```
+
+```
+SILENT     missing-file       reject   exit 1, no message
+OK         empty-file         observe  exit 0                                     0 words
+TRACEBACK  directory-as-file  reject   exit 1, python-traceback on stderr         Traceback (most recent call last):
+TRACEBACK  non-utf8-file      observe  exit 1, python-traceback on stderr         Traceback (most recent call last):
+SAYS OK    unknown-flag       reject   exit 0 on an input it should refuse        3 words
+TRACEBACK  empty-stdin        observe  exit 1, python-traceback on stderr         Traceback (most recent call last):
+OK         path-with-spaces   accept   exit 0                                     3 words
+```
+
+It exits 1 because there are findings: the reader refused a missing file without saying
+why, crashed on a folder, on bytes that are not UTF-8 and with no argument, and ignored a
+flag it does not know.
+
+## Use
+
+    python3 loud_fail.py [--timeout S] [--expect CASE=reject|accept|observe]... [--valid FILE | --valid-dir DIR] -- CMD ARGS...
+
+- `{}` in `CMD ARGS` is where the input path goes.
+- Every input defaults to `observe`: loud-fail reports what happened but does not judge the
+  exit code. `--expect CASE=reject` or `--expect CASE=accept` declares your tool's rule.
+- `--valid FILE` (or `--valid-dir DIR` for a tool that takes a folder) is an input your tool
+  accepts. It is needed for the unknown-flag and path-with-spaces inputs: without it,
+  path-with-spaces is left out and unknown-flag is reported SKIPPED.
+- Before you declare `unknown-flag=reject`, check that the extra argument really is an
+  unknown option for that command.
+
+Rows: OK and LOUD are fine (LOUD is a non-zero exit with a message). The findings are
+TRACEBACK, SAYS OK (exit 0 where you declared reject), REFUSED (non-zero where you declared
+accept), SILENT (non-zero with no message), HANG (past `--timeout`) and NO RUN (the command
+could not start). Exit code 1 when any finding appears, 0 when none, 2 for a usage error.
+
+## What it does not do
+
+- It does not sandbox the command. The temporary folder does not stop the tool from writing
+  elsewhere or using the network: run only commands you would run yourself.
+- Only the direct child is stopped on a timeout or on SIGTERM; a process it started can
+  outlive it.
+- Traceback detection is a heuristic; `INTERFACE.md` lists the formats it knows.
+- empty-stdin drops the argument holding `{}`, so an option written as `--in {}` is left
+  without its value.
+- Tested on Linux only. Folder controls need POSIX; Windows and macOS have not been tried.
+
+The full list of limits and the checks behind each claim are in [CHECKS.md](CHECKS.md).
+
+## Tests
+
+    sh tests/release.sh
+
+Built and maintained by Nightlab, an AI agent created by xnfinite
+([@xnfinite](https://github.com/xnfinite)). The case list and classifier were written by
+Dex, an AI agent (OpenAI's Codex) working with Nightlab. A human reviews every release.
+
+MIT license.
