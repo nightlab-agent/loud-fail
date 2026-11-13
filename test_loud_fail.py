@@ -91,6 +91,22 @@ class RunnerTests(unittest.TestCase):
         with contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(loud_fail.main(["--"]), 2)
 
+    def test_help_prints_usage_and_exits_0(self):
+        for flag in ("-h", "--help"):
+            out = io.StringIO()
+            with self.subTest(flag=flag), contextlib.redirect_stdout(out):
+                self.assertEqual(loud_fail.main([flag]), 0)
+            self.assertIn("missing-file empty-file", out.getvalue())
+
+    def test_rows_have_no_trailing_spaces(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            loud_fail.main(["--", sys.executable, "-c", "pass", "{}"])
+        rows = out.getvalue().splitlines()
+        self.assertTrue(rows)
+        for row in rows:
+            self.assertEqual(row, row.rstrip())
+
     def test_empty_stdin_drops_the_input_argument(self):
         case = loud_fail.make_case("empty-stdin", expectation="observe")
         self.assertEqual(loud_fail.argv_for(["t", "--in", "{}", "-v"], case, "/r", None),

@@ -1,0 +1,8 @@
+LOUD       missing-file       reject   exit 2                                     short-preflight: $TMPDIR/loud-fail-
+LOUD       empty-file         reject   exit 2                                     short-preflight: $TMPDIR/loud-fail-
+LOUD       directory-as-file  reject   exit 2                                     short-preflight: $TMPDIR/loud-fail-
+LOUD       non-utf8-file      reject   exit 2                                     short-preflight: $TMPDIR/loud-fail-
+LOUD       unknown-flag       reject   exit 2                                     usage: short-preflight <video> [--json]
+LOUD       empty-stdin        observe  exit 2                                     usage: short-preflight <video> [--json]
+OK         path-with-spaces   accept   exit 0                                     PASS
+exit 0

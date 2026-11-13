@@ -1,0 +1,8 @@
+LOUD       missing-file       reject   exit 2                                     npm-release-check: no package.json in $TMPDIR
+LOUD       empty-file         reject   exit 2                                     npm-release-check: no package.json in $TMPDIR
+LOUD       directory-as-file  reject   exit 2                                     npm-release-check: no package.json in $TMPDIR
+LOUD       non-utf8-file      reject   exit 2                                     npm-release-check: no package.json in $TMPDIR
+LOUD       unknown-flag       reject   exit 2                                     npm-release-check: unknown option --loud-fail-unknown-option
+LOUD       empty-stdin        observe  exit 2                                     npm-release-check: no package.json in $TMPDIR
+OK         path-with-spaces   accept   exit 0                                     lf-trial-pkg@0.0.1 (valid input)
+exit 0

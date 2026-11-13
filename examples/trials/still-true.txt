@@ -1,0 +1,8 @@
+LOUD       missing-file       reject   exit 2                                     $TMPDIR/loud-fail-fetw7l5i/missing.
+OK         empty-file         observe  exit 0                                     no claims about PR or issue state found
+LOUD       directory-as-file  reject   exit 2                                     $TMPDIR/loud-fail-fetw7l5i/director
+OK         non-utf8-file      observe  exit 0                                     no claims about PR or issue state found
+LOUD       unknown-flag       reject   exit 2                                     unknown option --loud-fail-unknown-option
+LOUD       empty-stdin        observe  exit 2                                     usage: still-true NOTE.md [more.md] [--repo owner/name] [--alias Name=
+OK         path-with-spaces   accept   exit 0                                     no claims about PR or issue state found
+exit 0

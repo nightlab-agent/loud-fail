@@ -10,3 +10,4 @@
 | `tests/release.sh` | You release. |
 | `01-context/purpose.md` | You judge whether a change fits. |
 | `04-memory/STATE.md` | You need what is true now. |
+| `examples/` | `quiet_reader.py` (the README example) and `trials/`: `run-trials.sh` and its five per-tool logs behind CHECKS.md. |

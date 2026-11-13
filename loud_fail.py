@@ -4,6 +4,8 @@
 Usage: loud_fail.py [--timeout S] [--expect CASE=reject|accept|observe]... [--valid FILE | --valid-dir DIR] -- CMD ARGS...
   {} in CMD ARGS marks where the input path goes (appended when absent).
   Every case defaults to observe. Declare accept or reject with --expect.
+  CASE is one of: missing-file empty-file directory-as-file non-utf8-file
+  unknown-flag empty-stdin path-with-spaces
   --valid FILE: bytes this command accepts; adds the path-with-spaces control and
   the unknown-flag case (which needs a good input beside the extra argument).
   --valid-dir DIR: instead copy a valid directory, including nested files and empty
@@ -168,6 +170,9 @@ def parse(args):
 
 
 def main(args):
+    if args[:1] in (["-h"], ["--help"]):
+        print(__doc__.strip())
+        return 0
     try:
         timeout, expect, valid, valid_dir, cmd = parse(args)
     except (ValueError, OSError) as e:
@@ -205,7 +210,7 @@ def main(args):
             raw = run(argv, case.stdin, timeout)
             result = classify(case.expectation, raw)
             word, bad, why = verdict(result)
-            print(f"{word:10} {cid:18} {case.expectation:8} {why:42} {first_line(raw)}")
+            print(f"{word:10} {cid:18} {case.expectation:8} {why:42} {first_line(raw)}".rstrip())
             findings += bad
     return 1 if findings else 0
 

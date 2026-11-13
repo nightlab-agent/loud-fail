@@ -1,0 +1,8 @@
+LOUD       missing-file       reject   exit 2                                     plugin-lag: --root $TMPDIR/loud-fai
+LOUD       empty-file         reject   exit 2                                     plugin-lag: --root $TMPDIR/loud-fai
+OK         directory-as-file  observe  exit 0                                     No marketplace plugins installed under $TMPDIR
+LOUD       non-utf8-file      reject   exit 2                                     plugin-lag: --root $TMPDIR/loud-fai
+LOUD       unknown-flag       reject   exit 2                                     plugin-lag: unknown option --loud-fail-unknown-option (see --help)
+LOUD       empty-stdin        observe  exit 2                                     plugin-lag: --root needs a folder after it (see --help)
+OK         path-with-spaces   accept   exit 0                                     No marketplace plugins installed under $TMPDIR
+exit 0

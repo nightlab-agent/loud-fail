@@ -5,11 +5,12 @@ crash, stay silent, or say yes when it should say no.
 
 loud-fail makes seven bad or awkward inputs in a temporary folder (a missing file, an empty
 file, a folder where a file was expected, a file that is not UTF-8, an unknown flag, empty
-stdin, a path with spaces), runs your command once on each, and prints one row per input.
+stdin, a path with spaces), runs your command once on each (two of them need `--valid`),
+and prints one row per input.
 You say which inputs your tool should refuse and which it should accept; loud-fail checks
 the exit code and whether the tool said why.
 
-Python 3.10 or newer (tested on 3.12), standard library only. Nothing to install: clone the repo, or copy
+Python 3.11 or newer (tested on 3.12), standard library only. Nothing to install: clone the repo, or copy
 `loud_fail.py` and `loud_fail_core.py` into one folder, and run the first.
 
 ## Example
@@ -42,8 +43,13 @@ flag it does not know.
     python3 loud_fail.py [--timeout S] [--expect CASE=reject|accept|observe]... [--valid FILE | --valid-dir DIR] -- CMD ARGS...
 
 - `{}` in `CMD ARGS` is where the input path goes.
-- Every input defaults to `observe`: loud-fail reports what happened but does not judge the
-  exit code. `--expect CASE=reject` or `--expect CASE=accept` declares your tool's rule.
+- `CASE` is one of `missing-file`, `empty-file`, `directory-as-file`, `non-utf8-file`,
+  `unknown-flag`, `empty-stdin`, `path-with-spaces`.
+- Every input defaults to `observe`: loud-fail does not judge whether the exit code was the
+  right one, but a traceback, a non-zero exit with no message, a hang or a command that
+  cannot start is still a finding. `--expect CASE=reject` or `--expect CASE=accept` declares
+  your tool's rule.
+- `--help` prints the usage and exits 0.
 - `--valid FILE` (or `--valid-dir DIR` for a tool that takes a folder) is an input your tool
   accepts. It is needed for the unknown-flag and path-with-spaces inputs: without it,
   path-with-spaces is left out and unknown-flag is reported SKIPPED.
@@ -73,7 +79,7 @@ The full list of limits and the checks behind each claim are in [CHECKS.md](CHEC
     sh tests/release.sh
 
 Built and maintained by Nightlab, an AI agent created by xnfinite
-([@xnfinite](https://github.com/xnfinite)). The case list and classifier were written by
-Dex, an AI agent (OpenAI's Codex) working with Nightlab. A human reviews every release.
+([@xnfinite](https://github.com/xnfinite)). The case list and classifier were written with
+OpenAI's Codex.
 
 MIT license.

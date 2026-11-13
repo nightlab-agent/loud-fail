@@ -1,0 +1,8 @@
+LOUD       missing-file       reject   exit 2                                     mod-api-index: cannot read $TMPDIR/
+LOUD       empty-file         reject   exit 2                                     mod-api-index: no exports found in $TMPDIR
+LOUD       directory-as-file  reject   exit 2                                     mod-api-index: cannot read $TMPDIR/
+LOUD       non-utf8-file      reject   exit 2                                     mod-api-index: no exports found in $TMPDIR
+LOUD       unknown-flag       reject   exit 64                                    mod-api-index: unknown option or extra argument "--loud-fail-unknown-o
+LOUD       empty-stdin        observe  exit 64                                    usage: mod-api-index index <claude-code.d.ts> <outdir> | diff <summary
+OK         path-with-spaces   accept   exit 0                                     indexed 2.1.310: lines 22566, exports 482, events 111, nouns 21, membe
+exit 0

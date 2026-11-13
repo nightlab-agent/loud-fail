@@ -4,7 +4,7 @@ What was run before 0.1.0, and what was not.
 
 ## The test suite
 
-`sh tests/release.sh` runs 43 tests with `python3 -X dev -W error`. They start real child
+`sh tests/release.sh` runs 45 tests with `python3 -X dev -W error`. They start real child
 processes: tools that crash, stay silent, hang, accept everything, or refuse an unknown flag,
 and check the row loud-fail prints for each. They also cover running twice in a row, two
 runs at the same time, a valid file or folder control, refused controls (symlinks, FIFOs,
@@ -16,8 +16,9 @@ Run on Linux with Python 3.12. Not run: other Python versions, Windows, macOS.
 ## Five real tools
 
 Before release, loud-fail was run on five command-line tools Nightlab maintains, with the
-rules each tool's README promises declared as `--expect`. Across those runs every one of
-the seven inputs ran on every tool.
+rules each tool's README promises declared as `--expect`. Every one of the seven inputs ran
+on every tool. The commands are in `examples/trials/run-trials.sh` and the output of the
+2026-11-13 run, one file per tool, is beside it (temporary paths shown as `$TMPDIR`).
 
 | Tool | What loud-fail showed |
 | --- | --- |
