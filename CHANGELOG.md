@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+`--timeout` now refuses `nan`, `inf`, zero and negative values with exit 2
+instead of running the probe with them.
+
 ## 0.1.0 (2026-11-13)
 
 First release. Seven probe inputs (missing-file, empty-file, directory-as-file,

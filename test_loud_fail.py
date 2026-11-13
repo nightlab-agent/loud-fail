@@ -85,7 +85,8 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(rc, 0)
 
     def test_usage_errors_exit_2(self):
-        for opts in (["--expect", "nope=reject"], ["--bogus", "x"], ["--valid", "/no/such/file"]):
+        for opts in (["--expect", "nope=reject"], ["--bogus", "x"], ["--valid", "/no/such/file"],
+                     *(["--timeout", t] for t in ("nan", "inf", "-1", "0", "abc"))):
             with self.subTest(opts=opts), contextlib.redirect_stderr(io.StringIO()):
                 self.assertEqual(loud_fail.main([*opts, "--", "true"]), 2)
         with contextlib.redirect_stderr(io.StringIO()):

@@ -16,7 +16,7 @@ Exit 0 when no row is a finding, 1 when one is, 2 on usage.
 On POSIX, SIGTERM during a probe exits 143 after direct-child and fixture cleanup.
 The interrupted case gets no policy verdict.
 """
-import os, signal, subprocess, sys, tempfile
+import math, os, signal, subprocess, sys, tempfile
 import stat
 
 from loud_fail_core import CASE_IDS, CompletedRun, IncompleteRun, classify, make_case
@@ -138,6 +138,8 @@ def parse(args):
     while args and args[0] != "--":
         if args[0] == "--timeout" and len(args) > 1:
             timeout = float(args[1])
+            if not math.isfinite(timeout) or timeout <= 0:
+                raise ValueError(f"--timeout {args[1]}: must be a positive number of seconds")
         elif args[0] == "--expect" and len(args) > 1 and "=" in args[1]:
             k, v = args[1].split("=", 1)
             if k not in CASE_IDS or v not in ("reject", "accept", "observe"):
