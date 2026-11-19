@@ -23,7 +23,7 @@ import shutil, stat
 
 from loud_fail_core import CASE_IDS, CompletedRun, IncompleteRun, classify, make_case
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 def argv_for(cmd, case, root, valid_path):

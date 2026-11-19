@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 (2026-11-19)
 
 Commands consisting only of arguments containing `{}` now exit 2 with a usage
 error before any target starts, instead of raising IndexError during empty-stdin.
