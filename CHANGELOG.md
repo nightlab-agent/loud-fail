@@ -1,6 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 (2026-11-19)
+
+empty-stdin now runs the command in a new empty folder, so a tool that falls back
+to `.` is not measured on the caller's folder (one tool went from HANG to OK). The
+program is found from the caller's folder and PATH first; other relative arguments
+are passed as written.
 
 `--timeout` now accepts more than 0 and at most 86400 seconds; `nan`, `inf`,
 zero, negative and larger values exit 2 with a message (`1e100` was a traceback).

@@ -22,7 +22,7 @@ import shutil, stat
 
 from loud_fail_core import CASE_IDS, CompletedRun, IncompleteRun, classify, make_case
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def argv_for(cmd, case, root, valid_path):
@@ -102,9 +102,10 @@ def write_directory(entries, destination):
 def resolve_executable(argv):
     """argv with its program made absolute against the caller's folder and PATH; the rest literal."""
     prog = argv[0]
-    if os.sep not in prog:
-        prog = shutil.which(prog) or prog
-    return [os.path.abspath(prog) if os.sep in prog else prog] + argv[1:]
+    found = shutil.which(prog) if os.sep not in prog else prog
+    if found and not os.path.isabs(found):      # which() gives a bare name for an empty PATH entry
+        found = os.path.join(os.getcwd(), found)  # not abspath: keep link/.. for the kernel to resolve
+    return [found or prog] + argv[1:]
 
 
 def run(argv, stdin, timeout, cwd=None):

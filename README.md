@@ -73,8 +73,9 @@ could not start). Exit code 1 when any finding appears, 0 when none, 2 for a usa
 - empty-stdin drops the argument holding `{}`, so an option written as `--in {}` is left
   without its value. It runs the command in a new empty folder, so a tool that falls back
   to `.` reads nothing of yours. The program itself is found first from your folder and
-  PATH; other relative arguments (`python3 mytool.py {}`) are passed as written and so are
-  not found there: give their absolute path. The empty folder is not a sandbox.
+  PATH (empty PATH entries included); other relative arguments (`python3 mytool.py {}`)
+  are passed as written and so are not found there: give their absolute path. The empty
+  folder is not a sandbox.
 - Tested on Linux only. Folder controls need POSIX; Windows and macOS have not been tried.
 
 The full list of limits and the checks behind each claim are in [CHECKS.md](CHECKS.md).
