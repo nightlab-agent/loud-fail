@@ -23,28 +23,31 @@ class SignalTests(unittest.TestCase):
         self.valid = self.root / "valid.txt"
         self.valid.write_bytes(b"valid bytes")
 
-    def start_probe(self, expectation="observe", timeout="30"):
+    def start_probe(self, expectation="observe", timeout="30", case="missing-file", cwd=None):
         listener = socket.socket()
         self.addCleanup(listener.close)
         listener.bind(("127.0.0.1", 0))
         listener.listen()
         listener.settimeout(5)
+        condition = ("len(sys.argv) == 1" if case == "empty-stdin" else
+                     "len(sys.argv) > 1 and pathlib.Path(sys.argv[1]).name == 'missing.txt'")
         code = (
             "import json,os,pathlib,signal,socket,sys\n"
-            "if len(sys.argv) > 1 and pathlib.Path(sys.argv[1]).name == 'missing.txt':\n"
+            f"if {condition}:\n"
             "    signal.signal(signal.SIGTERM, signal.SIG_IGN)\n"
             "    signal.signal(signal.SIGINT, signal.SIG_IGN)\n"
             f"    with socket.create_connection({listener.getsockname()!r}) as channel:\n"
-            "        channel.sendall((json.dumps([os.getpid(), str(pathlib.Path(sys.argv[1]).parent)]) + '\\n').encode())\n"
+            "        root = pathlib.Path(sys.argv[1]).parent if len(sys.argv) > 1 else pathlib.Path.cwd()\n"
+            "        channel.sendall((json.dumps([os.getpid(), str(root)]) + '\\n').encode())\n"
             "        if channel.recv(1) != b'x': sys.exit('probe channel closed')\n"
             "print('done')\n"
         )
         process = subprocess.Popen(
             [sys.executable, str(Path(loud_fail.__file__).resolve()),
-             "--timeout", timeout, "--expect", "missing-file=" + expectation,
+             "--timeout", timeout, "--expect", case + "=" + expectation,
              "--valid", str(self.valid),
              "--", sys.executable, "-c", code, "{}"],
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env)
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.env, cwd=cwd)
         child_pid = None
 
         def cleanup():
@@ -67,7 +70,8 @@ class SignalTests(unittest.TestCase):
         self.assertIsNone(process.poll())
         fixture = Path(root)
         self.assertTrue(fixture.is_dir())
-        self.assertEqual((fixture / "good-input.txt").read_bytes(), b"valid bytes")
+        if case == "missing-file":
+            self.assertEqual((fixture / "good-input.txt").read_bytes(), b"valid bytes")
         return process, channel, child_pid, fixture
 
     def assert_stopped(self, process, child_pid, fixture):
@@ -126,6 +130,30 @@ class SignalTests(unittest.TestCase):
         self.assertEqual((peer.returncode, stderr), (0, b""), stdout)
         self.assertIn(b"missing-file", stdout)
         self.assertFalse(peer_root.exists())
+
+    def test_empty_stdin_timeout_kills_child_and_removes_its_working_directory(self):
+        caller = self.root / "caller"
+        caller.mkdir()
+        sentinel = caller / "sentinel.txt"
+        sentinel.write_bytes(b"caller-owned bytes")
+        process, _, child_pid, case_dir = self.start_probe(
+            timeout="2", case="empty-stdin", cwd=caller)
+        entries = list(case_dir.iterdir())
+        stdout, stderr = process.communicate(timeout=10)
+        self.assertEqual((process.returncode, stderr), (1, b""), stdout)
+        with self.assertRaises(ProcessLookupError):
+            os.kill(child_pid, 0)
+        row = next(line for line in stdout.decode("utf-8").splitlines() if "empty-stdin" in line)
+        self.assertTrue(row.startswith("HANG"), row)
+        self.assertNotRegex(row, r"\bexit -?\d+")
+        self.assertEqual(sentinel.read_bytes(), b"caller-owned bytes")
+        self.assertEqual(list(self.root.glob("loud-fail-*")), [])
+        with self.subTest(contract="own working directory"):
+            self.assertNotEqual(case_dir, caller.resolve())
+        with self.subTest(contract="initially empty"):
+            self.assertEqual(entries, [])
+        with self.subTest(contract="case directory removed after timeout"):
+            self.assertFalse(case_dir.exists(), str(case_dir))
 
 
 if __name__ == "__main__":

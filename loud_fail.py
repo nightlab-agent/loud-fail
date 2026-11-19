@@ -18,7 +18,7 @@ On POSIX, SIGTERM during a probe exits 143 after direct-child and fixture cleanu
 The interrupted case gets no policy verdict.
 """
 import math, os, signal, subprocess, sys, tempfile
-import stat
+import shutil, stat
 
 from loud_fail_core import CASE_IDS, CompletedRun, IncompleteRun, classify, make_case
 
@@ -99,10 +99,18 @@ def write_directory(entries, destination):
             write_directory(content, path)
 
 
-def run(argv, stdin, timeout):
+def resolve_executable(argv):
+    """argv with its program made absolute against the caller's folder and PATH; the rest literal."""
+    prog = argv[0]
+    if os.sep not in prog:
+        prog = shutil.which(prog) or prog
+    return [os.path.abspath(prog) if os.sep in prog else prog] + argv[1:]
+
+
+def run(argv, stdin, timeout, cwd=None):
     try:
         p = subprocess.run(argv, input=stdin if stdin is not None else b"", capture_output=True,
-                           timeout=timeout)
+                           timeout=timeout, cwd=cwd)
         return CompletedRun(returncode=p.returncode, stdout=p.stdout, stderr=p.stderr)
     except subprocess.TimeoutExpired as e:
         return IncompleteRun(reason="timeout", detail=f"no exit in {timeout:g} s",
@@ -210,7 +218,12 @@ def main(args):
                 continue
             if cid != "path-with-spaces" or valid_dir is None:
                 build(case, root)
-            raw = run(argv, case.stdin, timeout)
+            cwd = None
+            if cid == "empty-stdin":       # no input path: start in an empty folder, not the caller's
+                cwd = os.path.join(root, "empty-stdin")
+                os.mkdir(cwd)
+                argv = resolve_executable(argv)
+            raw = run(argv, case.stdin, timeout, cwd)
             result = classify(case.expectation, raw)
             word, bad, why = verdict(result)
             print(f"{word:10} {cid:18} {case.expectation:8} {why:42} {first_line(raw)}".rstrip())
