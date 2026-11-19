@@ -3,6 +3,7 @@
 
 Usage: loud_fail.py [--timeout S] [--expect CASE=reject|accept|observe]... [--valid FILE | --valid-dir DIR] -- CMD ARGS...
   {} in CMD ARGS marks where the input path goes (appended when absent).
+  The command must remain nonempty when arguments containing {} are dropped for empty-stdin.
   --timeout S: seconds each run may take, default 10, more than 0 and at most 86400.
   Every case defaults to observe. Declare accept or reject with --expect.
   CASE is one of: missing-file empty-file directory-as-file non-utf8-file
@@ -178,6 +179,8 @@ def parse(args):
         args = args[2:]
     if len(args) < 2:
         raise ValueError("no command after --")
+    if all("{}" in a for a in args[1:]):
+        raise ValueError("no command remains after removing {} input arguments; include an executable without {}")
     return timeout, expect, valid, valid_dir, args[1:]
 
 

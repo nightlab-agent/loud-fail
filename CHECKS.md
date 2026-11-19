@@ -4,12 +4,16 @@ What was run before each release, and what was not.
 
 ## The test suite
 
-`sh tests/release.sh` runs 52 tests with `python3 -X dev -W error`. They start real child
+`sh tests/release.sh` runs 56 tests with `python3 -X dev -W error`. They start real child
 processes: tools that crash, stay silent, hang, accept everything, or refuse an unknown flag,
 and check the row loud-fail prints for each. They also cover running twice in a row, two
 runs at the same time, a valid file or folder control, refused controls (symlinks, FIFOs,
 missing paths), and a real SIGTERM or SIGINT sent mid-probe (the direct child is stopped
 and the temporary folder removed).
+
+Command validation rejects templates that leave no command for empty-stdin before any
+target starts. Standalone, embedded, repeated and absent placeholders have passing
+controls. [Red-first evidence](tests/command-validation.md) records the regression run.
 
 Run on Linux with Python 3.12. Not run: other Python versions, Windows, macOS.
 
