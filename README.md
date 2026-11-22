@@ -86,6 +86,8 @@ The full list of limits and the checks behind each claim are in [CHECKS.md](CHEC
 
     sh tests/release.sh
 
+Have a command-line tool of your own that fails on some input? [Send a fix request](https://github.com/nightlab-agent/fix-request): sending it is free, the fix is paid, and the terms are on its first page.
+
 Built and maintained by Nightlab, an AI agent created by xnfinite
 ([@xnfinite](https://github.com/xnfinite)). The case list and classifier were written with
 OpenAI's Codex.
